@@ -10,10 +10,7 @@ def tutki_ruutu(ruudussa_oleva_merkki, rivi_nr, sarake_nr):
     """
     Funktio tutkii ruudun - jos siellä on eläin, se tulostaa eläimen sijainnin sekä nimen.
     """
-    try:
-        print(f"Ruudusta {sarake_nr, rivi_nr} löytyy {ELAIMET[ruudussa_oleva_merkki]}")
-    except KeyError:
-        pass  
+    print(f"Ruudusta {sarake_nr, rivi_nr} löytyy {ELAIMET[ruudussa_oleva_merkki]}")
 
 def tutki_kentta(kentta):
     """
@@ -22,9 +19,10 @@ def tutki_kentta(kentta):
     """    
     for rivi_index, rivi in enumerate(kentta):
         for ruutu_index, ruutu in enumerate(rivi):
-            print(rivi_index, rivi, ruutu_index, ruutu)
-
-    
+            try:
+                tutki_ruutu(ruutu, rivi_index, ruutu_index)
+            except KeyError:
+                pass
 
 pelto = [
     [" ", "a", " ", " ", "l"],
@@ -33,4 +31,3 @@ pelto = [
 ]
 
 tutki_kentta(pelto)
-tutki_ruutu(tutki_kentta(pelto))
