@@ -1,6 +1,6 @@
 import math
 
-PER_SIVU = 10
+PER_SIVU = 5
 
 def valitse_artisti(levy):
     return levy["artisti"]
@@ -56,8 +56,34 @@ def kysy_aika(kysymys):
             print("Tuntien on oltava positiivinen kokonaisluku")
             continue
             
-        return "{}:{:02}:{:02}".format(h, min, s)
+        return f"{h}:{min:02}:{s:02}"
 
+def muuta_kenttia(levy):
+    print("Nykyiset tiedot:")
+    print("{artisti}, {albumi}, {kpl_n}, {kesto}, {julkaisuvuosi}".format(**levy))
+    print("Valitse muutettava kenttä syöttämällä sen numero. Jätä tyhjäksi lopettaaksesi.")
+    print("1 - artisti")
+    print("2 - levyn nimi")
+    print("3 - kappaleiden määrä")
+    print("4 - levyn kesto")
+    print("5 - julkaisuvuosi")
+    while True:
+        kentta = input("Valitse kenttä (1-5): ")
+        if not kentta:
+            break
+        elif kentta == "1":
+            levy["artisti"] = input("Anna artistin nimi: ")
+        elif kentta == "2":
+            levy["albumi"] = input("Anna levyn nimi: ")
+        elif kentta == "3":
+            levy["kpl_n"] = kysy_luku("Anna kappaleiden määrä: ")
+        elif kentta == "4":
+            levy["kesto"] = kysy_aika("Anna levyn kesto: ")
+        elif kentta == "5":
+            levy["julkaisuvuosi"] = kysy_luku("Anna julkaisuvuosi: ")
+        else:
+            print("Kenttää ei ole olemassa")
+    
 def lataa_kokoelma():
     """
     Luo testikokoelman. Palauttaa listan, joka sisältää viiden avain-arvo-parin
@@ -151,12 +177,19 @@ def lataa_kokoelma():
     ]
     return kokoelma
 
-def tallenna_kokoelma(kokoelma):
+def tallenna_kokoelma(kokoelma, tiedosto):
     """
     Tallentaa kokoelman, joskus tulevaisuudessa. 
     """
-    
-    pass
+    try:
+        with open(tiedosto, "w") as kohde:
+            for levy in kokoelma:
+                kohde.write(
+                    f"{levy['artisti']}, {levy['albumi']}, {levy['kpl_n']}, "
+                    f"{levy['kesto']}, {levy['julkaisuvuosi']}"
+                )
+    except IOError:
+        print("Kohdetiedostoa ei voitu avata. Tallennus epäonnistui")
     
 def lisaa(kokoelma):
     print("Täytä lisättävän levyn tiedot. Jätä levyn nimi tyhjäksi lopettaaksesi")
@@ -178,7 +211,16 @@ def lisaa(kokoelma):
         })
  
 def muokkaa(kokoelma):
-    pass
+    print("Täytä muutettavan levyn nimi ja artistin nimi. Jätä levyn nimi tyhjäksi lopettaaksesi")
+    while True:
+        nimi = input("Anna muutettavan levyn nimi: ").lower()
+        if not nimi:
+            break
+        artisti = input("Anna muutettavan levyn artisti: ").lower()
+        for levy in kokoelma[:]: 
+            if levy["artisti"].lower() == artisti and levy["albumi"].lower() == nimi:
+                muuta_kenttia(levy)
+                print("Levyn tiedot muutettu")
  
 def poista(kokoelma):
     print("Täytä poistettavan levyn nimi ja artistin nimi. Jätä levyn nimi tyhjäksi lopettaaksesi")
@@ -187,11 +229,10 @@ def poista(kokoelma):
         if not nimi:
             break
         artisti = input("Anna poistettavan levyn artisti: ").lower()
-        for levy in kokoelma[:]:
+        for levy in kokoelma[:]: 
             if levy["artisti"].lower() == artisti and levy["albumi"].lower() == nimi:
                 kokoelma.remove(levy)
                 print("Levy poistettu")
-
 
 def jarjesta(kokoelma):
     print("Valitse kenttä jonka mukaan kokoelma järjestetään syöttämällä kenttää vastaava numero")
