@@ -111,6 +111,7 @@ def lataa_kokoelma(tiedosto):
         print("Tiedoston avaaminen ei onnistunut. Aloitetaan tyhjällä kokoelmalla")
 
     return kokoelma
+
 def lue_rivi(rivi, kokoelma):
     try:
         artisti, albumi, n, kesto, vuosi = rivi.split(",")
