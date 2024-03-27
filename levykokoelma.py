@@ -1,6 +1,10 @@
 import math
+import json
+import sys
+import nuuskija
+import time
 
-PER_SIVU = 5
+PER_SIVU = 20
 
 def valitse_artisti(levy):
     return levy["artisti"]
@@ -226,8 +230,17 @@ def tulosta(kokoelma):
         if i < tulostuksia - 1:
             input("   -- paina enter jatkaaksesi tulostusta --")        
 
+def rakenna_kokoelma():
+    kansio = input("Syötä kansio josta haluat rakentaa kokoelman: ")
+    try:
+        kokoelma = nuuskija.lue_kokoelma(kansio)
+    except FileNotFoundError:
+        print("Kansiota ei löytynyt")
+    return kokoelma
+
 kokoelma = lataa_kokoelma("kokoelma.txt")
 print("Tämä ohjelma ylläpitää levykokoelmaa. Voit valita seuraavista toiminnoista:")
+print("(R)akenna kokoelma")
 print("(L)isää uusia levyjä")
 print("(M)uokkaa levyjä")
 print("(P)oista levyjä")
@@ -236,7 +249,9 @@ print("(T)ulosta kokoelma")
 print("(Q)uittaa")
 while True:
     valinta = input("Tee valintasi: ").strip().lower()
-    if valinta == "l":
+    if valinta == "r":
+        kokoelma = rakenna_kokoelma()
+    elif valinta == "l":
         lisaa(kokoelma)
     elif valinta == "m":
         muokkaa(kokoelma)
