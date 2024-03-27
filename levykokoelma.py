@@ -1,6 +1,6 @@
 import math
 
-PER_SIVU = 10
+PER_SIVU = 5
 
 def valitse_artisti(levy):
     return levy["artisti"]
@@ -56,9 +56,35 @@ def kysy_aika(kysymys):
             print("Tuntien on oltava positiivinen kokonaisluku")
             continue
             
-        return "{}:{:02}:{:02}".format(h, min, s)
+        return f"{h}:{min:02}:{s:02}"
 
-def lataa_kokoelma():
+def muuta_kenttia(levy):
+    print("Nykyiset tiedot:")
+    print("{artisti}, {albumi}, {kpl_n}, {kesto}, {julkaisuvuosi}".format(**levy))
+    print("Valitse muutettava kenttä syöttämällä sen numero. Jätä tyhjäksi lopettaaksesi.")
+    print("1 - artisti")
+    print("2 - levyn nimi")
+    print("3 - kappaleiden määrä")
+    print("4 - levyn kesto")
+    print("5 - julkaisuvuosi")
+    while True:
+        kentta = input("Valitse kenttä (1-5): ")
+        if not kentta:
+            break
+        elif kentta == "1":
+            levy["artisti"] = input("Anna artistin nimi: ")
+        elif kentta == "2":
+            levy["albumi"] = input("Anna levyn nimi: ")
+        elif kentta == "3":
+            levy["kpl_n"] = kysy_luku("Anna kappaleiden määrä: ")
+        elif kentta == "4":
+            levy["kesto"] = kysy_aika("Anna levyn kesto: ")
+        elif kentta == "5":
+            levy["julkaisuvuosi"] = kysy_luku("Anna julkaisuvuosi: ")
+        else:
+            print("Kenttää ei ole olemassa")
+    
+def lataa_kokoelma(tiedosto):
     """
     Luo testikokoelman. Palauttaa listan, joka sisältää viiden avain-arvo-parin
     sanakirjoja.
@@ -69,94 +95,50 @@ def lataa_kokoelma():
     "kesto" - kesto
     "julkaisuvuosi" - julkaisuvuosi
     """
+    # Rivillä oleva järjestys vastaa seuraavia sanakirjan avaimia:
+    # 1. "artisti" - artisti nimi
+    # 2. "albumi" - levyn nimi
+    # 3. "kpl_n" - kappaleiden määrä
+    # 4. "kesto" - kesto
+    # 5. "julkaisuvuosi" - julkaisuvuosi
     
-    kokoelma = [
-        {
-            "artisti": "Alcest",
-            "albumi": "Kodama",
-            "kpl_n": 6,
-            "kesto": "0:42:15",
-            "julkaisuvuosi": 2016
-        },
-        {
-            "artisti": "Canaan",
-            "albumi": "A Calling to Weakness",
-            "kpl_n": 17,
-            "kesto": "1:11:17",
-            "julkaisuvuosi": 2002
-        },
-        {
-            "artisti": "Deftones",
-            "albumi": "Gore",
-            "kpl_n": 11,
-            "kesto": "0:48:13",
-            "julkaisuvuosi": 2016
-        },
-        {
-            "artisti": "Funeralium",
-            "albumi": "Deceived Idealism",
-            "kpl_n": 6,
-            "kesto": "1:28:22",
-            "julkaisuvuosi": 2013
-        },
-        {
-            "artisti": "IU",
-            "albumi": "Modern Times",
-            "kpl_n": 13,
-            "kesto": "47:14",
-            "julkaisuvuosi": 2013
-        },
-        {
-            "artisti": "Mono",
-            "albumi": "You Are There",
-            "kpl_n": 6,
-            "kesto": "1:00:01",
-            "julkaisuvuosi": 2006
-        },
-        {
-            "artisti": "Panopticon",
-            "albumi": "Roads to the North",
-            "kpl_n": 8,
-            "kesto": "1:11:07",
-            "julkaisuvuosi": 2014
-        },
-        {
-            "artisti": "PassCode",
-            "albumi": "Clarity",
-            "kpl_n": 13,
-            "kesto": "0:49:27",
-            "julkaisuvuosi": 2019
-        },
-        {
-            "artisti": "Scandal",
-            "albumi": "Hello World",
-            "kpl_n": 13,
-            "kesto": "53:22",
-            "julkaisuvuosi": 2014
-        },
-        {
-            "artisti": "Slipknot",
-            "albumi": "Iowa",
-            "kpl_n": 14,
-            "kesto": "1:06:24",
-            "julkaisuvuosi": 2001
-        },
-        {
-            "artisti": "Wolves in the Throne Room",
-            "albumi": "Thrice Woven",
-            "kpl_n": 5,
-            "kesto": "42:19",
-            "julkaisuvuosi": 2017
-        },
-    ]
+    kokoelma = []
+    try:
+        with open(tiedosto) as lahde:
+            for rivi in lahde.readlines():
+                lue_rivi(rivi, kokoelma)
+    except IOError:
+        print("Tiedoston avaaminen ei onnistunut. Aloitetaan tyhjällä kokoelmalla")
+
     return kokoelma
 
-def tallenna_kokoelma(kokoelma):
+def lue_rivi(rivi, kokoelma):
+    try:
+        artisti, albumi, n, kesto, vuosi = rivi.split(",")
+        levy = {
+            "artisti": artisti.strip(),
+            "albumi": albumi.strip(),
+            "kpl_n": int(n),
+            "kesto": kesto.strip(),
+            "julkaisuvuosi": int(vuosi)
+        }
+        kokoelma.append(levy)
+    except ValueError:
+        print(f"Riviä ei saatu luettua: {rivi}")
+
+def tallenna_kokoelma(kokoelma, tiedosto):
     """
     Tallentaa kokoelman, joskus tulevaisuudessa. 
     """
-    
-    pass
+    try:
+        with open(tiedosto, "w") as kohde:
+            for levy in kokoelma:
+                kohde.write(
+                    f"{levy['artisti']}, {levy['albumi']}, {levy['kpl_n']}, "
+                    f"{levy['kesto']}, {levy['julkaisuvuosi']}\n"
+                )
+    except IOError:
+        print("Kohdetiedostoa ei voitu avata. Tallennus epäonnistui")
     
 def lisaa(kokoelma):
     print("Täytä lisättävän levyn tiedot. Jätä levyn nimi tyhjäksi lopettaaksesi")
@@ -178,7 +160,16 @@ def lisaa(kokoelma):
         })
  
 def muokkaa(kokoelma):
-    pass
+    print("Täytä muutettavan levyn nimi ja artistin nimi. Jätä levyn nimi tyhjäksi lopettaaksesi")
+    while True:
+        nimi = input("Anna muutettavan levyn nimi: ").lower()
+        if not nimi:
+            break
+        artisti = input("Anna muutettavan levyn artisti: ").lower()
+        for levy in kokoelma[:]: 
+            if levy["artisti"].lower() == artisti and levy["albumi"].lower() == nimi:
+                muuta_kenttia(levy)
+                print("Levyn tiedot muutettu")
  
 def poista(kokoelma):
     print("Täytä poistettavan levyn nimi ja artistin nimi. Jätä levyn nimi tyhjäksi lopettaaksesi")
@@ -187,11 +178,10 @@ def poista(kokoelma):
         if not nimi:
             break
         artisti = input("Anna poistettavan levyn artisti: ").lower()
-        for levy in kokoelma[:]:
+        for levy in kokoelma[:]: 
             if levy["artisti"].lower() == artisti and levy["albumi"].lower() == nimi:
                 kokoelma.remove(levy)
                 print("Levy poistettu")
-
 
 def jarjesta(kokoelma):
     print("Valitse kenttä jonka mukaan kokoelma järjestetään syöttämällä kenttää vastaava numero")
@@ -236,7 +226,7 @@ def tulosta(kokoelma):
         if i < tulostuksia - 1:
             input("   -- paina enter jatkaaksesi tulostusta --")        
 
-kokoelma = lataa_kokoelma()
+kokoelma = lataa_kokoelma("kokoelma.txt")
 print("Tämä ohjelma ylläpitää levykokoelmaa. Voit valita seuraavista toiminnoista:")
 print("(L)isää uusia levyjä")
 print("(M)uokkaa levyjä")
@@ -260,4 +250,4 @@ while True:
         break    
     else:
         print("Valitsemaasi toimintoa ei ole olemassa")
-tallenna_kokoelma(kokoelma)
+tallenna_kokoelma(kokoelma, "kokoelma.txt")
